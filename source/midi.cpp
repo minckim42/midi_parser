@@ -1,0 +1,264 @@
+#include "midi.h"
+#include "util.h"
+#include <vector>
+#include <iostream>
+
+
+
+namespace MidiParser {
+/*##########################
+
+	QuarterNoteDivsion
+
+##########################*/
+QuarterNoteDivsion::QuarterNoteDivsion(int division): 
+	division(division) 
+{};
+//------------------------------------------------------------------------------
+std::string		QuarterNoteDivsion::to_string() const
+{
+	std::stringstream ss;
+	ss << "Quarter note division: " << division;
+	return ss.str();
+}
+//------------------------------------------------------------------------------
+microseconds	QuarterNoteDivsion::get_delta_time_duration(uint32_t quarter_note_duration) const
+{
+	return microseconds(quarter_note_duration / division);
+}
+//------------------------------------------------------------------------------
+microseconds	QuarterNoteDivsion::get_delta_time_duration(microseconds quarter_note_duration) const
+{
+	return quarter_note_duration / division;
+}
+
+
+
+/*##########################
+
+	SMPTEDivision
+
+##########################*/
+SMPTEDivision::SMPTEDivision(int frame_rate, int ticks): 
+	frame_rate(std::clamp(frame_rate, 0, 127)), ticks(std::clamp(ticks, 0, 255))
+{};
+//------------------------------------------------------------------------------
+std::string		SMPTEDivision::to_string() const
+{
+	std::stringstream ss;
+	ss << "Frames per second: " << frame_rate << ", Ticks per frame: " << ticks;
+	return ss.str();
+}
+//------------------------------------------------------------------------------
+microseconds		SMPTEDivision::get_delta_time_duration(uint32_t quarter_note_duration) const
+{
+	return microseconds(1000000 / frame_rate / ticks);
+}
+//------------------------------------------------------------------------------
+microseconds		SMPTEDivision::get_delta_time_duration(microseconds quarter_note_duration) const
+{
+	return microseconds(1000000 / frame_rate / ticks);
+}
+
+
+
+
+
+/*##########################
+
+	Midi
+
+##########################*/
+Midi::Midi(const std::filesystem::path& file_path)
+{
+	open(file_path);
+}
+//------------------------------------------------------------------------------
+void	Midi::open(const std::filesystem::path& file_path)
+{
+	close();
+	std::vector<byte> data = read_bin_file(file_path);
+
+	const byte* begin = &data[0];
+	const byte* end = begin + data.size();
+
+	std::string magic_num = "0000";
+	magic_num[0] = read1(begin, end);
+	magic_num[1] = read1(begin, end);
+	magic_num[2] = read1(begin, end);
+	magic_num[3] = read1(begin, end);
+	if (magic_num != "MThd")
+		throw std::runtime_error("Invalid file");
+
+	// length of header data
+	read4(begin, end);
+	
+	// format
+	read2(begin, end);
+
+	// track count
+	uint16_t track_count = read2(begin, end);
+	tracks.reserve(track_count);
+	
+	// division
+	int16_t div = read2(begin, end);
+	if (div < 0)
+	{
+		if (std::endian::native == std::endian::little)
+			division = std::make_shared<SMPTEDivision>(-(div >> 8), div & 0xff);
+		else
+			division = std::make_shared<SMPTEDivision>(-(div & 0xff), div >> 8);
+	}
+	else
+	{
+		division = std::make_shared<QuarterNoteDivsion>(div);
+	}
+
+	for (int i = 0; i < track_count; i++)
+	{
+		magic_num[0] = read1(begin, end);
+		magic_num[1] = read1(begin, end);
+		magic_num[2] = read1(begin, end);
+		magic_num[3] = read1(begin, end);
+		if (magic_num != "MTrk")
+			throw std::runtime_error("Invalid file");
+		uint32_t length = read4(begin, end);
+		const byte* track_end = begin + length;
+		if (track_end > end)
+			throw std::out_of_range("");
+
+		Track& track = tracks.emplace_back();
+		track.events.reserve(length / 10);
+
+		std::shared_ptr<Event> prev_event;
+		while (begin < track_end)
+		{
+			uint64_t delta_time = read_variable(begin, track_end);
+			uint64_t status = read1(begin, track_end);
+			Event::Type type = Event::get_event_type(status);
+			if (type == Event::META)
+			{
+				prev_event = track.events.emplace_back(
+					MetaEvent::create(delta_time, status, begin, track_end));
+				auto meta_type = dynamic_cast<MetaEvent*>(prev_event.get())->get_meta_type();
+				if (meta_type == MetaEvent::END_OF_TRACK)
+				{
+					begin = track_end;
+					break;
+				}
+			}
+			else if (type == Event::SYSEX)
+			{
+				prev_event = track.events.emplace_back(
+					SysexEvent::create(delta_time, status, begin, track_end));
+			}
+			else 
+			{
+				if ((status >> 4) < 8)
+				{
+					--begin;
+					if (!prev_event)
+						throw std::runtime_error("Invalid file");
+					status = prev_event->get_status();
+				}
+				prev_event = track.events.emplace_back(
+					MidiEvent::create(delta_time, status, begin, track_end));
+			}
+		}
+	}
+	update_timestamp();
+	this->file_path = file_path;
+}
+//------------------------------------------------------------------------------
+void			Midi::close()
+{
+	division.reset();
+	tracks.clear();
+	file_path.clear();
+}
+//------------------------------------------------------------------------------
+std::ostream&	Midi::str(std::ostream& os) const
+{
+	os 
+	<< "Header\n"
+	<< "Format: ";
+	if (tracks.size() == 1)
+		os << "Single Track";
+	else if (tracks.size() > 1)
+		os << "Multiple Tracks";
+	os
+	<< "Num of tracks: " << tracks.size() << '\n'
+	<< "Division: " << division->to_string() << '\n'
+	<< "\n===================================================================\n";
+	
+	int track_num = 0;
+	for (const auto& track: tracks)
+	{
+		os 
+		<< "Track " << track_num++
+		<< "\nNum of Events: " << track.events.size() << '\n';
+		
+		int event_num = 0;
+		for (const auto& event: track.events)
+		{
+			os << std::setw(6) << event_num++ << " | ";
+			event->str(os) << '\n';
+		}
+		os<< "===================================================================\n";
+	}
+	return os;
+}
+//------------------------------------------------------------------------------
+std::string		Midi::str() const
+{
+	std::stringstream ss;
+	str(ss);
+	return ss.str();
+}
+//------------------------------------------------------------------------------
+void			Midi::save_str(const std::filesystem::path& file_path) const
+{
+	std::ofstream ofs(file_path);
+	if (!ofs.is_open())
+		throw std::runtime_error("create failed");
+
+	str(ofs);
+	ofs.close();
+}
+//------------------------------------------------------------------------------
+void			Midi::save_str() const
+{
+	std::filesystem::path save_path = file_path;
+	save_path.replace_extension("txt");
+
+	std::ofstream ofs(save_path);
+	if (!ofs.is_open())
+		throw std::runtime_error("create failed");
+
+	str(ofs);
+	ofs.close();
+}
+//------------------------------------------------------------------------------
+void			Midi::update_timestamp()
+{
+	for (Track& track :tracks)
+	{
+		uint64_t timestamp = 0;
+		for (Event::ptr& event: track.events)
+		{
+			timestamp += event->delta_time;
+			event->timestamp = timestamp;
+		}
+	}
+}
+//------------------------------------------------------------------------------
+int				Midi::event_count() const
+{
+	int count = 0;
+	for (const Track& track: tracks)
+	{
+		count += track.events.size();
+	}
+	return count;
+}
+} // MidiParser
