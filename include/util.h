@@ -8,6 +8,7 @@
 #include <chrono>
 #include <thread>
 
+namespace MidiParser {
 /*##########################
 
    Inline & template
@@ -132,3 +133,4 @@ std::string						hex_dump(
 	const std::vector<int>&			split = {2, 8},
 	const std::vector<int>&			line = {64, 1024}
 );
+}

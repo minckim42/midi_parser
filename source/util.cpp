@@ -1,6 +1,7 @@
 #include "util.h"
 #include <sstream>
 
+namespace MidiParser {
 std::vector<byte>	read_bin_file(const std::filesystem::path &file_path)
 {
 	std::ifstream ifs(file_path, std::ios::binary);
@@ -110,3 +111,4 @@ std::string						hex_dump(
 	);
 }
 
+}
