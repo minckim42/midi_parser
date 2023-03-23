@@ -189,6 +189,7 @@ void midi_out(int channel, int instruction, int val0, int val1);
 	```c++
 	cmake -B build -G "MinGw Makefiles"
 	make -C build
+	./build/midi_example.exe
 	```
 - 비주얼스튜디오
 	- 생략
