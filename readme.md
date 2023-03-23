@@ -1,11 +1,23 @@
 # Midi Parser
-### 이벤트 단위 분석기
-### 사용하려면 미디 포맷에 대한 이해가 필요함
+### 미디 이벤트 단위 분석기
+### 미디 포맷에 대한 이해가 필요함!
 
 # 구성
+- 예제(윈도우즈 전용)
 - 미디 구문분석기
 - 미디 출력(윈도우즈 전용)
-- 예제
+
+
+# 예제(윈도우즈 전용)
+## 빌드 및 실행방법
+- MinGW를 쓰는 경우:
+	```c++
+	cmake -B build -G "MinGw Makefiles"
+	make -C build
+	./build/midi_example.exe
+	```
+- 비주얼스튜디오
+	- 생략
 
 # 미디 구문분석기
 ## 프로젝트에 추가하는 방법: CMake로 추가하기
@@ -17,10 +29,10 @@
 	|   |---source
 	|   |---CMakeLists.txt
 	|
-	|---CMakeLists.txt # <-- 루트 프로젝트
+	|---CMakeLists.txt # <-- 프로젝트
 	|
 	```
-2. 루트 프로젝트의 ```CMakeLists.txt``` 에서 서브디렉토리 추가 및 링크
+2. 프로젝트의 ```CMakeLists.txt``` 에서 서브디렉토리 추가 및 링크
 	```cmake
 	...
 	add_subdirectory(midi_parser)
@@ -32,7 +44,7 @@
 	```
 
 ## 사용법
-- 사용하려면 미디포멧에 대한 이해가 필요하다.
+- (중요!)미디포멧에 대한 이해가 필요하다.
 - ~~미디 구조를 알면 함수 이름만 보고도 쓸 수 있을 것 같음~~
 
 1. 헤더 포함
@@ -183,13 +195,3 @@ void midi_out(int channel, int instruction, int val0, int val1);
 
 - ```midi_out(...)```함수는 호출하는 순간 리턴하는 논블록 함수이다.
 
-# 예제(윈도우즈 전용)
-## 빌드 및 실행방법
-- MinGW를 쓰는 경우:
-	```c++
-	cmake -B build -G "MinGw Makefiles"
-	make -C build
-	./build/midi_example.exe
-	```
-- 비주얼스튜디오
-	- 생략
