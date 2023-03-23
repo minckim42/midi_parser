@@ -23,7 +23,7 @@ int				MetaEvent::get_status() const
 	return 0xff;
 }
 //------------------------------------------------------------------------------
-Event::Type		MetaEvent::get_event_type() const
+Event::Category	MetaEvent::get_category() const
 {
 	return Event::META;
 }
@@ -112,7 +112,7 @@ std::shared_ptr<Event>	MetaEvent::create(
 		case SEQUENCE_SPECIFIC:
 			return std::make_shared<SequenceSpecific>(delta_time, tmp);
 	}
-	throw std::runtime_error("unknown");
+	throw std::runtime_error("Unknown Meta Event: " + std::to_string(type));
 }
 
 
@@ -130,7 +130,7 @@ SequenceNumber::SequenceNumber(uint64_t delta_time, int sequence_number):
 	set(sequence_number);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type		SequenceNumber::get_meta_type() const
+MetaEvent::Type		SequenceNumber::get_type() const
 {
 	return SEQUENCE_NUMBER;
 }
@@ -172,7 +172,7 @@ UserText::UserText(uint64_t delta_time, const std::string& str):
 	set(str);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			UserText::get_meta_type() const
+MetaEvent::Type			UserText::get_type() const
 {
 	return USER_TEXT;
 }
@@ -212,7 +212,7 @@ CopyRight::CopyRight(uint64_t delta_time, const std::string& str):
 	set(str);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			CopyRight::get_meta_type() const
+MetaEvent::Type			CopyRight::get_type() const
 {
 	return COPY_RIGHT;
 }
@@ -252,7 +252,7 @@ TrackName::TrackName(uint64_t delta_time, const std::string& str):
 	set(str);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			TrackName::get_meta_type() const
+MetaEvent::Type			TrackName::get_type() const
 {
 	return USER_TEXT;
 }
@@ -292,7 +292,7 @@ InstrumentName::InstrumentName(uint64_t delta_time, const std::string& str):
 	set(str);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			InstrumentName::get_meta_type() const
+MetaEvent::Type			InstrumentName::get_type() const
 {
 	return INSTRUMENT_NAME;
 }
@@ -332,7 +332,7 @@ Lyric::Lyric(uint64_t delta_time, const std::string& str):
 	set(str);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			Lyric::get_meta_type() const
+MetaEvent::Type			Lyric::get_type() const
 {
 	return INSTRUMENT_NAME;
 }
@@ -372,7 +372,7 @@ Marker::Marker(uint64_t delta_time, const std::string& str):
 	set(str);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			Marker::get_meta_type() const
+MetaEvent::Type			Marker::get_type() const
 {
 	return INSTRUMENT_NAME;
 }
@@ -412,7 +412,7 @@ CuePoint::CuePoint(uint64_t delta_time, const std::string& str):
 	set(str);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			CuePoint::get_meta_type() const
+MetaEvent::Type			CuePoint::get_type() const
 {
 	return INSTRUMENT_NAME;
 }
@@ -450,7 +450,7 @@ ChannelPrefix::ChannelPrefix(uint64_t delta_time, int channel):
 	set(channel);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			ChannelPrefix::get_meta_type() const
+MetaEvent::Type			ChannelPrefix::get_type() const
 {
 	return INSTRUMENT_NAME;
 }
@@ -488,7 +488,7 @@ MidiPort::MidiPort(uint64_t delta_time, int port):
 	set(port);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			MidiPort::get_meta_type() const
+MetaEvent::Type			MidiPort::get_type() const
 {
 	return MIDI_PORT;
 }
@@ -522,7 +522,7 @@ EndOfTrack::EndOfTrack(uint64_t delta_time):
 	MetaEvent(delta_time)
 {}
 //------------------------------------------------------------------------------
-MetaEvent::Type			EndOfTrack::get_meta_type() const
+MetaEvent::Type			EndOfTrack::get_type() const
 {
 	return END_OF_TRACK;
 }
@@ -550,7 +550,7 @@ SetTempo::SetTempo(uint64_t delta_time, int quarter_note_duration):
 	set(quarter_note_duration);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type	SetTempo::get_meta_type() const
+MetaEvent::Type	SetTempo::get_type() const
 {
 	return SET_TEMPO;
 }
@@ -603,7 +603,7 @@ SMPTEOffset::SMPTEOffset(
 	set(hour, minute, second, frame, subframe);
 }
 
-MetaEvent::Type	SMPTEOffset::get_meta_type() const
+MetaEvent::Type	SMPTEOffset::get_type() const
 {
 	return SMPTE_OFFSET;
 }
@@ -698,7 +698,7 @@ TimeSignature::TimeSignature(
 	set(numerator, denominator, metronome_ticks, quarter_note_division_32);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type	TimeSignature::get_meta_type() const
+MetaEvent::Type	TimeSignature::get_type() const
 {
 	return TIME_SIGNATURE;
 }
@@ -785,7 +785,7 @@ KeySignature::KeySignature(
 	data.shrink_to_fit();
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type	KeySignature::get_meta_type() const
+MetaEvent::Type	KeySignature::get_type() const
 {
 	return KEY_SIGNATURE;
 }
@@ -842,7 +842,7 @@ SequenceSpecific::SequenceSpecific(uint64_t delta_time, const std::string& str):
 	set(str);
 }
 //------------------------------------------------------------------------------
-MetaEvent::Type			SequenceSpecific::get_meta_type() const
+MetaEvent::Type			SequenceSpecific::get_type() const
 {
 	return SEQUENCE_SPECIFIC;
 }

@@ -7,7 +7,7 @@ Event::Event(uint64_t delta_time):
 	delta_time(delta_time)
 {}
 //------------------------------------------------------------------------------
-Event::Type		Event::get_event_type(byte status)
+Event::Category	Event::get_category(byte status)
 {
 	if (status == 0xff)
 		return META;

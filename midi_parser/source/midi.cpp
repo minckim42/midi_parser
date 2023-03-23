@@ -2,62 +2,62 @@
 #include "util.h"
 #include <vector>
 #include <iostream>
+#include <bit>
 
 
 
 namespace MidiParser {
 /*##########################
 
-	QuarterNoteDivsion
+	Division
 
 ##########################*/
-QuarterNoteDivsion::QuarterNoteDivsion(int division): 
-	division(division) 
-{};
+Division::Division(uint16_t division)
+{
+	set_division(division);
+}
 //------------------------------------------------------------------------------
-std::string		QuarterNoteDivsion::to_string() const
+Division::Division(byte frame_rate, byte ticks)
+{
+	set_smpte(frame_rate, ticks);
+}
+//------------------------------------------------------------------------------
+void			Division::set_division(uint16_t division)
+{
+	type = QUARTER_NOTE;
+	value[0] = division;
+	value[1] = 0;
+}
+//------------------------------------------------------------------------------
+void			Division::set_smpte(byte frame_rate, byte ticks)
+{
+	type = SMPTE;
+	value[0] = frame_rate;
+	value[1] = ticks;
+}
+//------------------------------------------------------------------------------
+std::string		Division::to_string() const
 {
 	std::stringstream ss;
-	ss << "Quarter note division: " << division;
+	if (type == QUARTER_NOTE)
+		ss << "Quarter note division: " << value[0];
+	else
+		ss << "Frames per second: " << value[0] << ", Ticks per frame: " << value[1];
 	return ss.str();
 }
 //------------------------------------------------------------------------------
-microseconds	QuarterNoteDivsion::get_delta_time_duration(uint32_t quarter_note_duration) const
+microseconds	Division::get_delta_time_duration(microseconds quarter_note_duration) const
 {
-	return microseconds(quarter_note_duration / division);
+	if (type == QUARTER_NOTE)
+		return quarter_note_duration / value[0];
+	return microseconds(0);
 }
 //------------------------------------------------------------------------------
-microseconds	QuarterNoteDivsion::get_delta_time_duration(microseconds quarter_note_duration) const
+microseconds	Division::get_delta_time_duration() const
 {
-	return quarter_note_duration / division;
-}
-
-
-
-/*##########################
-
-	SMPTEDivision
-
-##########################*/
-SMPTEDivision::SMPTEDivision(int frame_rate, int ticks): 
-	frame_rate(std::clamp(frame_rate, 0, 127)), ticks(std::clamp(ticks, 0, 255))
-{};
-//------------------------------------------------------------------------------
-std::string		SMPTEDivision::to_string() const
-{
-	std::stringstream ss;
-	ss << "Frames per second: " << frame_rate << ", Ticks per frame: " << ticks;
-	return ss.str();
-}
-//------------------------------------------------------------------------------
-microseconds		SMPTEDivision::get_delta_time_duration(uint32_t quarter_note_duration) const
-{
-	return microseconds(1000000 / frame_rate / ticks);
-}
-//------------------------------------------------------------------------------
-microseconds		SMPTEDivision::get_delta_time_duration(microseconds quarter_note_duration) const
-{
-	return microseconds(1000000 / frame_rate / ticks);
+	if (type == SMPTE)
+		return microseconds(1000000 / value[0] / value[1]);
+	return microseconds(0);
 }
 
 
@@ -104,14 +104,14 @@ void	Midi::open(const std::filesystem::path& file_path)
 	int16_t div = read2(begin, end);
 	if (div < 0)
 	{
-		if (std::endian::native == std::endian::little)
-			division = std::make_shared<SMPTEDivision>(-(div >> 8), div & 0xff);
+		if constexpr(std::endian::native == std::endian::little)
+			division.set_smpte(-(div >> 8), div & 0xff);
 		else
-			division = std::make_shared<SMPTEDivision>(-(div & 0xff), div >> 8);
+			division.set_smpte(-(div & 0xff), div >> 8);
 	}
 	else
 	{
-		division = std::make_shared<QuarterNoteDivsion>(div);
+		division.set_division(div);
 	}
 
 	for (int i = 0; i < track_count; i++)
@@ -135,12 +135,24 @@ void	Midi::open(const std::filesystem::path& file_path)
 		{
 			uint64_t delta_time = read_variable(begin, track_end);
 			uint64_t status = read1(begin, track_end);
-			Event::Type type = Event::get_event_type(status);
+			
+
+			if ((status >> 4) < 8)
+			{
+				--begin;
+				if (!prev_event)
+					throw std::runtime_error("Invalid file");
+				status = prev_event->get_status();
+			}
+			Event::Category type = Event::get_category(status);
+			
+			
 			if (type == Event::META)
 			{
 				prev_event = track.events.emplace_back(
-					MetaEvent::create(delta_time, status, begin, track_end));
-				auto meta_type = dynamic_cast<MetaEvent*>(prev_event.get())->get_meta_type();
+					MetaEvent::create(delta_time, status, begin, track_end)
+				);
+				auto meta_type = dynamic_cast<MetaEvent*>(prev_event.get())->get_type();
 				if (meta_type == MetaEvent::END_OF_TRACK)
 				{
 					begin = track_end;
@@ -150,19 +162,15 @@ void	Midi::open(const std::filesystem::path& file_path)
 			else if (type == Event::SYSEX)
 			{
 				prev_event = track.events.emplace_back(
-					SysexEvent::create(delta_time, status, begin, track_end));
+					SysexEvent::create(delta_time, status, begin, track_end)
+				);
 			}
 			else 
 			{
-				if ((status >> 4) < 8)
-				{
-					--begin;
-					if (!prev_event)
-						throw std::runtime_error("Invalid file");
-					status = prev_event->get_status();
-				}
+
 				prev_event = track.events.emplace_back(
-					MidiEvent::create(delta_time, status, begin, track_end));
+					MidiEvent::create(delta_time, status, begin, track_end)
+				);
 			}
 		}
 	}
@@ -172,7 +180,6 @@ void	Midi::open(const std::filesystem::path& file_path)
 //------------------------------------------------------------------------------
 void			Midi::close()
 {
-	division.reset();
 	tracks.clear();
 	file_path.clear();
 }
@@ -188,7 +195,7 @@ std::ostream&	Midi::str(std::ostream& os) const
 		os << "Multiple Tracks";
 	os
 	<< "Num of tracks: " << tracks.size() << '\n'
-	<< "Division: " << division->to_string() << '\n'
+	<< "Division: " << division.to_string() << '\n'
 	<< "\n===================================================================\n";
 	
 	int track_num = 0;

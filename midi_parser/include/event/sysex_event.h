@@ -15,36 +15,18 @@ class SysexEvent : public Event
 {
 public:
 	/*---------------------
-		enumeration
-	---------------------*/
-	enum Type
-	{
-		SYSEX_MESSAGES = 0xf0,
-		MTC_QUARTER_FRAME = 0xf1,
-		SONG_POSITION_POINTER = 0xf2,
-		SONG_REQUEST = 0xf3,
-		TUNE_REQUEST = 0xf6,
-		END_OF_SYSEX_MESSAGES = 0xf7,
-		TIMING_CLOCK_FOR_SYNC = 0xf8,
-		START_CURRENT_SEQUENCE = 0xfa,
-		CONTINUE_STOPPED_SEQUENCE = 0xfb,
-		STOP_SEQUENCE = 0xfc,
-		ACTIVE_SENSING = 0xfe,
-	};
-
-	/*---------------------
 		methods
 	---------------------*/
 	virtual 
 	int				get_status() const override;
 	
 	virtual 
-	Type			get_sysex_type() const = 0;
+	Event::Type		get_type() const = 0;
 	
 	virtual
 	std::ostream&	str(std::ostream& os) const override;
 
-	Event::Type 	get_event_type() const override;
+	Event::Category	get_category() const override;
 
 	static 
 	std::shared_ptr<Event>	create(
@@ -89,7 +71,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type				get_sysex_type() const override;
+	Type				get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 	std::vector<byte>	get_messages() const;
 	void				set_messages(const std::vector<byte>& messages);
@@ -124,7 +106,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type				get_sysex_type() const override;
+	Event::Type				get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 	int 				get_value() const;
 	void				set_value(int val);
@@ -158,7 +140,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type		get_sysex_type() const override;
+	Event::Type		get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 	int 		get_position() const;
 	void 		get_position(byte& b0, byte& b1) const;
@@ -192,7 +174,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type				get_sysex_type() const override;
+	Event::Type				get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 	int 				get_song() const;
 	void	 			set_song(int song);
@@ -224,7 +206,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type				get_sysex_type() const override;
+	Event::Type				get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 };
 
@@ -248,7 +230,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type		get_sysex_type() const override;
+	Event::Type		get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 };
 
@@ -272,7 +254,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type		get_sysex_type() const override;
+	Event::Type		get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 };
 
@@ -296,7 +278,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type		get_sysex_type() const override;
+	Event::Type		get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 };
 
@@ -320,7 +302,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type		get_sysex_type() const override;
+	Event::Type		get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 };
 
@@ -344,7 +326,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type		get_sysex_type() const override;
+	Event::Type		get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 };
 
@@ -368,7 +350,7 @@ public:
 	/*---------------------
 		methods
 	---------------------*/
-	Type		get_sysex_type() const override;
+	Event::Type		get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 };
 } // MidiParser

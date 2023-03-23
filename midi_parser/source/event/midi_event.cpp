@@ -12,7 +12,7 @@ MidiEvent::MidiEvent(uint64_t delta_time, int channel):
 	Event(delta_time), channel(channel)
 {}
 //------------------------------------------------------------------------------
-Event::Type		MidiEvent::get_event_type() const
+Event::Category	MidiEvent::get_category() const
 {
 	return Event::MIDI;
 }
@@ -82,7 +82,7 @@ std::shared_ptr<Event>	MidiEvent::create(
 		case PITCH_BEND:
 			return std::make_shared<PitchBend>(delta_time, channel, val0, val1);
 	}
-	throw std::runtime_error("unknown" + std::to_string(type));
+	throw std::runtime_error("Unknown Midi Event: " + std::to_string(type));
 }
 
 
@@ -109,7 +109,7 @@ int		NoteOff::get_status() const
 	return 0x80 | get_channel();
 }
 //------------------------------------------------------------------------------
-MidiEvent::Type		NoteOff::get_midi_type() const
+MidiEvent::Type		NoteOff::get_type() const
 {
 	return NOTE_OFF;
 }
@@ -183,7 +183,7 @@ int		NoteOn::get_status() const
 	return 0x90 | get_channel();
 }
 //------------------------------------------------------------------------------
-MidiEvent::Type		NoteOn::get_midi_type() const
+MidiEvent::Type		NoteOn::get_type() const
 {
 	return NOTE_ON;
 }
@@ -258,7 +258,7 @@ int		PolyphonicKeyPressure::get_status() const
 	return 0x90 | get_channel();
 }
 //------------------------------------------------------------------------------
-MidiEvent::Type		PolyphonicKeyPressure::get_midi_type() const
+MidiEvent::Type		PolyphonicKeyPressure::get_type() const
 {
 	return POLYPHONIC_KEY_PRESSURE;
 }
@@ -333,7 +333,7 @@ int					ControlChange::get_status() const
 	return 0xb0 | get_channel();
 }
 //------------------------------------------------------------------------------
-MidiEvent::Type		ControlChange::get_midi_type() const
+MidiEvent::Type		ControlChange::get_type() const
 {
 	return CONTROL_CHANGE;
 }
@@ -396,7 +396,7 @@ int		ProgramChange::get_status() const
 	return 0xc0 | get_channel();
 }
 //------------------------------------------------------------------------------
-MidiEvent::Type		ProgramChange::get_midi_type() const
+MidiEvent::Type		ProgramChange::get_type() const
 {
 	return PROGRAM_CHANGE;
 }
@@ -449,7 +449,7 @@ int ChannelPressure::get_status() const
 	return 0xd0 | get_channel();
 }
 //------------------------------------------------------------------------------
-MidiEvent::Type		ChannelPressure::get_midi_type() const
+MidiEvent::Type		ChannelPressure::get_type() const
 {
 	return CHANNEL_PRESSURE;
 }
@@ -504,7 +504,7 @@ int PitchBend::get_status() const
 	return 0xe0 | get_channel();
 }
 //------------------------------------------------------------------------------
-MidiEvent::Type PitchBend::get_midi_type() const
+MidiEvent::Type PitchBend::get_type() const
 {
 	return PITCH_BEND;
 }

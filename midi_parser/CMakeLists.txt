@@ -3,7 +3,7 @@ project(midi_parser)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(midi_parser
+add_library(midi_parser
 	source/event/controller.cpp
 	source/event/event.cpp
 	source/event/instrument.cpp
@@ -13,13 +13,8 @@ add_executable(midi_parser
 	source/event/sysex_event.cpp
 	source/midi.cpp
 	source/util.cpp
-	test.cpp
 )
 
 target_include_directories(midi_parser PRIVATE
 	include
-)
-
-target_link_libraries(midi_parser PRIVATE
-	winmm
 )

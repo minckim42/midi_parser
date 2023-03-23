@@ -14,37 +14,13 @@ class MetaEvent: public Event
 {
 public:
 	/*---------------------
-		enumeration
-	---------------------*/
-	enum Type
-	{
-		SEQUENCE_NUMBER = 0x00,
-		USER_TEXT = 0x01,
-		COPY_RIGHT = 0x02,
-		TRACK_NAME = 0x03,
-		INSTRUMENT_NAME = 0x04,
-		LYRIC = 0x05,
-		MARKER = 0x06,
-		CUE_POINT = 0x07,
-		CHANNEL_PREFIX = 0x20,
-		MIDI_PORT = 0x21,
-		END_OF_TRACK = 0x2f,
-		SET_TEMPO = 0x51,
-		SMPTE_OFFSET = 0x54,
-		TIME_SIGNATURE = 0x58,
-		KEY_SIGNATURE = 0x59,
-		SEQUENCE_SPECIFIC = 0x7f
-	};
-
-
-	/*---------------------
 		methods
 	---------------------*/
 	int				get_status() const override;
-	Event::Type		get_event_type() const override;
+	Event::Category	get_category() const override;
 
 	virtual
-	Type			get_meta_type() const = 0;
+	Type			get_type() const = 0;
 
 	virtual
 	std::ostream&		str(std::ostream& os) const override; // {return "";}
@@ -91,7 +67,7 @@ class SequenceNumber: public MetaEvent
 public:
 	SequenceNumber(uint64_t delta_time, int sequence_number = 0);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	int				get() const;
 	void			set(int sequence_number);
@@ -111,7 +87,7 @@ public:
 	UserText(uint64_t delta_time, const std::vector<byte>& vec);
 	UserText(uint64_t delta_time, const std::string& str);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	std::string		get() const;
 	void			set(const std::string& str);
@@ -131,7 +107,7 @@ public:
 	CopyRight(uint64_t delta_time, const std::vector<byte>& vec);
 	CopyRight(uint64_t delta_time, const std::string& str);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	std::string		get() const;
 	void			set(const std::string& str);
@@ -151,7 +127,7 @@ public:
 	TrackName(uint64_t delta_time, const std::vector<byte>& vec);
 	TrackName(uint64_t delta_time, const std::string& str);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	std::string		get() const;
 	void			set(const std::string& str);
@@ -171,7 +147,7 @@ public:
 	InstrumentName(uint64_t delta_time, const std::vector<byte>& vec);
 	InstrumentName(uint64_t delta_time, const std::string& str);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	std::string		get() const;
 	void			set(const std::string& str);
@@ -191,7 +167,7 @@ public:
 	Lyric(uint64_t delta_time, const std::vector<byte>& vec);
 	Lyric(uint64_t delta_time, const std::string& str);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	std::string		get() const;
 	void			set(const std::string& str);
@@ -211,7 +187,7 @@ public:
 	Marker(uint64_t delta_time, const std::vector<byte>& vec);
 	Marker(uint64_t delta_time, const std::string& str);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	std::string		get() const;
 	void			set(const std::string& str);
@@ -231,7 +207,7 @@ public:
 	CuePoint(uint64_t delta_time, const std::vector<byte>& vec);
 	CuePoint(uint64_t delta_time, const std::string& str);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	std::string		get() const;
 	void			set(const std::string& str);
@@ -250,8 +226,8 @@ class ChannelPrefix: public MetaEvent
 public:
 	ChannelPrefix(uint64_t delta_time, int channel);
 
-	Type			get_meta_type() const override;
-	std::ostream&		str(std::ostream& os) const override;
+	Type			get_type() const override;
+	std::ostream&	str(std::ostream& os) const override;
 	int 			get() const;
 	void			set(int channel);
 };
@@ -269,7 +245,7 @@ class MidiPort: public MetaEvent
 public:
 	MidiPort(uint64_t delta_time, int port);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	int 			get() const;
 	void			set(int port);
@@ -288,7 +264,7 @@ class EndOfTrack: public MetaEvent
 public:
 	EndOfTrack(uint64_t delta_time);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 };
 
@@ -305,7 +281,7 @@ class SetTempo: public MetaEvent
 public:
 	SetTempo(uint64_t delta_time, int quarter_note_duration);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	microseconds	get_quarter_note_duration() const;
 	void			set(int quarter_note_duration); // micro second
@@ -331,7 +307,7 @@ public:
 		int			subframe
 	);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	int				get_hour() const;
 	int				get_minute() const;
@@ -365,7 +341,7 @@ public:
 		int			quarter_note_division_32
 	);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	int				get_numerator() const;
 	int				get_denominator() const;
@@ -400,7 +376,7 @@ public:
 		int scale
 	);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	int				get_key() const;
 	int 			get_scale() const;
@@ -422,7 +398,7 @@ public:
 	SequenceSpecific(uint64_t delta_time, const std::vector<byte>& vec);
 	SequenceSpecific(uint64_t delta_time, const std::string& str);
 
-	Type			get_meta_type() const override;
+	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	std::string		get() const;
 	void			set(const std::string& str);

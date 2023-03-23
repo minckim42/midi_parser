@@ -12,14 +12,14 @@ SysexEvent::SysexEvent(uint64_t delta_time):
 	Event(delta_time)
 {}
 //------------------------------------------------------------------------------
-Event::Type 	SysexEvent::get_event_type() const
+Event::Category	SysexEvent::get_category() const
 {
 	return SYSEX;
 }
 //------------------------------------------------------------------------------
 int 		SysexEvent::get_status() const
 {
-	return static_cast<int>(get_sysex_type());
+	return static_cast<int>(get_type());
 }
 //------------------------------------------------------------------------------
 std::ostream&	SysexEvent::str(std::ostream& os) const
@@ -74,7 +74,7 @@ std::shared_ptr<Event>	SysexEvent::create(
 		case ACTIVE_SENSING:
 			return std::make_shared<ActiveSensing>(delta_time);
 	}
-	throw std::runtime_error("unknown");
+	throw std::runtime_error("unknown Sysex Event: " + std::to_string(type));
 }
 
 
@@ -93,7 +93,7 @@ SysexMessages::SysexMessages(uint64_t delta_time, std::vector<byte>&& messages) 
 	SysexEvent(delta_time), messages(std::move(messages))
 {}
 //------------------------------------------------------------------------------
-SysexEvent::Type		SysexMessages::get_sysex_type() const
+SysexEvent::Type		SysexMessages::get_type() const
 {
 	return SYSEX_MESSAGES;
 }
@@ -134,7 +134,7 @@ MTCQuarterFrame::MTCQuarterFrame(uint64_t delta_time, byte val):
 	SysexEvent(delta_time), value(val)
 {}
 //------------------------------------------------------------------------------
-SysexEvent::Type		MTCQuarterFrame::get_sysex_type() const
+SysexEvent::Type		MTCQuarterFrame::get_type() const
 {
 	return MTC_QUARTER_FRAME;
 }
@@ -177,7 +177,7 @@ SongPositionPointer::SongPositionPointer(uint64_t delta_time, byte b0, byte b1):
 	set_position(b0, b1);
 }
 //------------------------------------------------------------------------------
-SysexEvent::Type	SongPositionPointer::get_sysex_type() const
+SysexEvent::Type	SongPositionPointer::get_type() const
 {
 	return SONG_POSITION_POINTER;
 }
@@ -226,7 +226,7 @@ SongRequest::SongRequest(uint64_t delta_time, int song):
 	set_song(song);
 }
 //------------------------------------------------------------------------------
-SysexEvent::Type	SongRequest::get_sysex_type() const
+SysexEvent::Type	SongRequest::get_type() const
 {
 	return SONG_REQUEST;
 }
@@ -261,7 +261,7 @@ TuneRequest::TuneRequest(uint64_t delta_time):
 	SysexEvent(delta_time)
 {}
 //------------------------------------------------------------------------------
-SysexEvent::Type	TuneRequest::get_sysex_type() const
+SysexEvent::Type	TuneRequest::get_type() const
 {
 	return TUNE_REQUEST;
 }
@@ -285,7 +285,7 @@ EndOfSysexMessages::EndOfSysexMessages(uint64_t delta_time):
 	SysexEvent(delta_time)
 {}
 //------------------------------------------------------------------------------
-SysexEvent::Type	EndOfSysexMessages::get_sysex_type() const
+SysexEvent::Type	EndOfSysexMessages::get_type() const
 {
 	return END_OF_SYSEX_MESSAGES;
 }
@@ -309,7 +309,7 @@ TimingClockForSync::TimingClockForSync(uint64_t delta_time):
 	SysexEvent(delta_time)
 {}
 //------------------------------------------------------------------------------
-SysexEvent::Type	TimingClockForSync::get_sysex_type() const
+SysexEvent::Type	TimingClockForSync::get_type() const
 {
 	return TIMING_CLOCK_FOR_SYNC;
 }
@@ -334,7 +334,7 @@ StartCurrentSequence::StartCurrentSequence(uint64_t delta_time):
 	SysexEvent(delta_time)
 {}
 //------------------------------------------------------------------------------
-SysexEvent::Type	StartCurrentSequence::get_sysex_type() const
+SysexEvent::Type	StartCurrentSequence::get_type() const
 {
 	return START_CURRENT_SEQUENCE;
 }
@@ -358,7 +358,7 @@ ContinueStoppedSequence::ContinueStoppedSequence(uint64_t delta_time):
 	SysexEvent(delta_time)
 {}
 //------------------------------------------------------------------------------
-SysexEvent::Type	ContinueStoppedSequence::get_sysex_type() const
+SysexEvent::Type	ContinueStoppedSequence::get_type() const
 {
 	return CONTINUE_STOPPED_SEQUENCE;
 }
@@ -382,7 +382,7 @@ StopSequence::StopSequence(uint64_t delta_time):
 	SysexEvent(delta_time)
 {}
 //------------------------------------------------------------------------------
-SysexEvent::Type	StopSequence::get_sysex_type() const
+SysexEvent::Type	StopSequence::get_type() const
 {
 	return STOP_SEQUENCE;
 }
@@ -407,7 +407,7 @@ ActiveSensing::ActiveSensing(uint64_t delta_time):
 	SysexEvent(delta_time)
 {}
 //------------------------------------------------------------------------------
-SysexEvent::Type	ActiveSensing::get_sysex_type() const
+SysexEvent::Type	ActiveSensing::get_type() const
 {
 	return ACTIVE_SENSING;
 }

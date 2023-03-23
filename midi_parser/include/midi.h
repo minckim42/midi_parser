@@ -1,3 +1,11 @@
+/*==============================================================================
+Warning:
+- SMPTE is not supported yet.
+
+Minchang Kim
+2023.12
+==============================================================================*/
+
 #pragma once
 #include "common.h"
 #include "chunk.h"
@@ -17,57 +25,25 @@ namespace MidiParser{
 class Division
 {
 public:
-	virtual std::string		to_string() const = 0;
+	enum Type
+	{
+		QUARTER_NOTE,
+		SMPTE,
+	};
+
+	Division() = default;
+	Division(uint16_t division);
+	Division(byte frame_rate, byte ticks);
 	
-	virtual 
-	microseconds	get_delta_time_duration(uint32_t quarter_note_duration) const = 0;
-	
-	virtual
-	microseconds	get_delta_time_duration(microseconds quarter_note_duration) const = 0;
+	void			set_division(uint16_t division);
+	void			set_smpte(byte frame_rate, byte ticks);
+	std::string		to_string() const;
+	microseconds	get_delta_time_duration(microseconds quarter_note_duration) const;
+	microseconds	get_delta_time_duration() const;
 
 protected:
-	Division() = default;
-};
-
-
-
-
-/*##########################
-
-	QuarterNoteDivsion
-
-##########################*/
-class QuarterNoteDivsion: public Division
-{
-public:
-	uint16_t	division = 96;
-
-	QuarterNoteDivsion(int division = 96);
-
-	std::string			to_string() const override;
-	microseconds	get_delta_time_duration(uint32_t quarter_note_duration) const override;
-	microseconds	get_delta_time_duration(microseconds quarter_note_duration) const override;
-};
-
-
-
-
-/*##########################
-
-	SMPTEDivision
-
-##########################*/
-class SMPTEDivision: public Division
-{
-public:
-	byte	frame_rate = 25;
-	byte	ticks = 40;
-	
-	SMPTEDivision(int frame_rate = 25, int ticks = 40);
-
-	std::string			to_string() const override;
-	microseconds	get_delta_time_duration(uint32_t quarter_note_duration) const override;
-	microseconds	get_delta_time_duration(microseconds quarter_note_duration) const override;
+	Type		type = QUARTER_NOTE;
+	uint16_t	value[2] = {0, 0};
 };
 
 
@@ -94,7 +70,7 @@ public:
 	/*---------------------
 		members
 	---------------------*/
-	std::shared_ptr<Division>	division;
+	Division					division;
 	std::vector<Track>			tracks;
 
 	/*---------------------

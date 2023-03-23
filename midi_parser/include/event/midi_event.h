@@ -16,20 +16,6 @@ class MidiEvent : public Event
 {
 public:
 	/*---------------------
-		enumeration
-	---------------------*/
-	enum Type
-	{
-		NOTE_OFF = 8,
-		NOTE_ON = 9,
-		POLYPHONIC_KEY_PRESSURE = 10,
-		CONTROL_CHANGE = 11,
-		PROGRAM_CHANGE = 12,
-		CHANNEL_PRESSURE = 13,
-		PITCH_BEND = 14,
-	};
-
-	/*---------------------
 		methods
 	---------------------*/
 	int				get_channel() const;
@@ -40,10 +26,10 @@ public:
 	virtual
 	std::ostream&	str(std::ostream& os) const override;
 	
-	Event::Type 	get_event_type() const override;
+	Event::Category	get_category() const override;
 	
 	virtual
-	Type			get_midi_type() const = 0;
+	Type			get_type() const = 0;
 	
 	void			set_channel(int channel);
 	
@@ -138,7 +124,7 @@ public:
 		methods
 	---------------------*/
 	int					get_status() const override;
-	Type				get_midi_type() const override;
+	Type				get_type() const override;
 	std::ostream&		str(std::ostream& os) const override;
 	Note				get_note() const;
 	int					get_velocity() const;
@@ -174,7 +160,7 @@ public:
 		methods
 	---------------------*/
 	int		get_status() const override;
-	Type	get_midi_type() const override;
+	Type	get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	Note	get_note() const;
 	int		get_velocity() const;
@@ -211,7 +197,7 @@ public:
 		methods
 	---------------------*/
 	int		get_status() const override;
-	Type	get_midi_type() const override;
+	Type	get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	Note	get_note() const;
 	int		get_pressure() const;
@@ -248,7 +234,7 @@ public:
 		methods
 	---------------------*/
 	int			get_status() const override;
-	Type		get_midi_type() const override;
+	Type		get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	Controller	get_controller() const;
 	int			get_value() const;
@@ -282,7 +268,7 @@ public:
 		methods
 	---------------------*/
 	int			get_status() const override;
-	Type		get_midi_type() const override;
+	Type		get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	Instrument	get_instrument() const;
 	void		set_instrument(Instrument instrument);
@@ -310,7 +296,7 @@ public:
 		methods
 	---------------------*/
 	int get_status() const override;
-	Type get_midi_type() const override;
+	Type get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	int get_pressure() const;
 	void set_pressure(int pressure);
@@ -338,7 +324,7 @@ public:
 		methods
 	---------------------*/
 	int get_status() const override;
-	Type get_midi_type() const override;
+	Type get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
 	int get_lsb() const;
 	int get_msb() const;
