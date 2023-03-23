@@ -97,7 +97,8 @@
 				```c++
 				Event* event = ...;
 				int64_t delta_time = event->delta_time;
-				microseconds time = delta_time * delta_time_duration; //time(us) = delta_time * delta_time_duration(us)
+				microseconds time = delta_time * delta_time_duration; 
+				//time(us) = delta_time * delta_time_duration(us)
 				```
 			- 여기서 ```delta_time_duration```은 ```Midi``` 클래스의 멤버 ```division```을 통해서 구한다.
 				```c++
@@ -108,12 +109,14 @@
 			- ```Division```은 시간 단위에 대한 정보다. 타입은 둘 중 하나다.
 				- 사분음표 길이(quarter_note_duration) 타입:
 					```c++
-					microseconds delta_time_duration = division.get_delta_time_duration(quarter_note_duration)
+					microseconds delta_time_duration = 
+						division.get_delta_time_duration(quarter_note_duration)
 					// delta_time_duration(us) = quarter_note_duration(us) / division
 					```
 				- SMPTE 타입: frame_rate와 ticks로 구성되어 있고, set_smpte로 설정가능하다.
 					```c++
-					microseconds delta_time_duration = division.get_delta_time_duration();
+					microseconds delta_time_duration = 
+						division.get_delta_time_duration();
 					// delta_time_duration(us) = 1 / ( frame_rate(frame/s) * ticks(1/frame) )
 					```
 			- division 타입이 사분음표 길이 타입일 때 인자 없이 ```get_delta_time_duration()```을 호출하면 0을 반환한다.
