@@ -1,7 +1,7 @@
 # Midi Parser
-## 이벤트 단위 분석기
-## 사용하려면 미디 포맷에 대한 이해가 필요함
----
+### 이벤트 단위 분석기
+### 사용하려면 미디 포맷에 대한 이해가 필요함
+
 # 구성
 - 미디 구문분석기
 - 미디 출력(윈도우즈 전용)
@@ -9,7 +9,18 @@
 
 # 미디 구문분석기
 ## 프로젝트에 추가하는 방법: CMake로 추가하기
-1. CMakeLists.txt 편집
+1. ```midi_parser``` 디렉토리를 프로젝트에 복사한다.
+	```
+	root
+	|---midi_parser
+	|   |---include
+	|   |---source
+	|   |---CMakeLists.txt
+	|
+	|---CMakeLists.txt # <-- 루트 프로젝트
+	|
+	```
+2. 루트 프로젝트의 ```CMakeLists.txt``` 에서 서브디렉토리 추가 및 링크
 	```cmake
 	...
 	add_subdirectory(midi_parser)
