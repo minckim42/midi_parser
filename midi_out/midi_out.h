@@ -9,5 +9,5 @@
 void midi_init();
 
 int midi_out(uint32_t msg);
-int midi_out(int channel, int instruction, int val0, int val1);
+int midi_out(int channel, int instruction, int val0, int val1 = 0);
 void midi_reset();
