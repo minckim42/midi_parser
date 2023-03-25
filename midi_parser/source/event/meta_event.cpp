@@ -563,10 +563,10 @@ std::ostream&			SetTempo::str(std::ostream& os) const
 		<< get_quarter_note_duration().count() << " ms";
 }
 //------------------------------------------------------------------------------
-microseconds 	SetTempo::get_quarter_note_duration() const
+Microseconds 	SetTempo::get_quarter_note_duration() const
 {
 	return
-		microseconds(
+		Microseconds(
 			(static_cast<int>(data[0]) << 16) |
 			(static_cast<int>(data[1]) <<  8) |
 			static_cast<int>(data[2])

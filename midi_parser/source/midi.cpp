@@ -46,18 +46,18 @@ std::string		Division::to_string() const
 	return ss.str();
 }
 //------------------------------------------------------------------------------
-microseconds	Division::get_delta_time_duration(microseconds quarter_note_duration) const
+Microseconds	Division::get_delta_time_duration(Microseconds quarter_note_duration) const
 {
 	if (type == QUARTER_NOTE)
 		return quarter_note_duration / value[0];
-	return microseconds(0);
+	return Microseconds(0);
 }
 //------------------------------------------------------------------------------
-microseconds	Division::get_delta_time_duration() const
+Microseconds	Division::get_delta_time_duration() const
 {
 	if (type == SMPTE)
-		return microseconds(1000000 / value[0] / value[1]);
-	return microseconds(0);
+		return Microseconds(1000000 / value[0] / value[1]);
+	return Microseconds(0);
 }
 
 

@@ -5,6 +5,7 @@
 #include "instrument.h"
 #include "controller.h"
 #include <string>
+#include <bit>
 
 namespace MidiParser {
 /*##########################
@@ -80,22 +81,29 @@ protected:
 
 	uint32_t	get_binary_base_1() const
 	{
-		uint32_t result = 0;
-		byte* ptr = reinterpret_cast<byte*>(&result);
-		ptr[0] = get_status();
-		ptr[1] = data[0];
-		return result;
+		if constexpr (std::endian::native == std::endian::little)
+			return 
+				get_status() |
+				data[0] << 8 ;
+		else
+			return 
+				get_status() << 24 |
+				data[0]      << 16 ;
 	}
 
 	inline		
 	uint32_t	get_binary_base_2() const
 	{
-		uint32_t result = 0;
-		byte* ptr = reinterpret_cast<byte*>(&result);
-		ptr[0] = get_status();
-		ptr[1] = data[0];
-		ptr[2] = data[1];
-		return result;
+		if constexpr (std::endian::native == std::endian::little)
+			return 
+				get_status()  |
+				data[0] << 8  |
+				data[1] << 16 ;
+		else
+			return 
+				get_status() << 24 |
+				data[0]      << 16 |
+				data[1]      <<  8 ;
 	}
 };
 
@@ -132,7 +140,7 @@ public:
 	void				set_note(int note_number);
 	void				set_note(Pitch pitch, Octave octave);
 	void				set_velocity(int velocity);
-	uint32_t	get_binary() const override;
+	uint32_t			get_binary() const override;
 };
 
 

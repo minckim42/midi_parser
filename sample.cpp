@@ -6,62 +6,51 @@
 #include <iostream>
 #include <Windows.h>
 
-
 void midi_play(const MidiParser::Midi& midi)
 {
-	try{
-		std::vector<MidiParser::Event*> events;
-		for (const MidiParser::Track& track: midi.tracks)
-		{
-			for (MidiParser::Event::ptr event: track.events)
-			{
-				events.emplace_back(event.get());
-			}
-		}
+	std::vector<int> indices(midi.tracks.size(), 0);
+	int64_t timestamp = 0;
+	MidiParser::Microseconds delta_time_duration(0);
+	bool playing = true;
+	MidiParser::Timepoint time = MidiParser::Clock::now();
 
-		// Although some events may have the same timestamp within the same track, 
-		// the sequence should always be maintained.
-		std::stable_sort(events.begin(), events.end(), 
-			[](MidiParser::Event* a, MidiParser::Event* b)
-			{
-				return a->timestamp < b->timestamp; 
-			}
-		);
-
-		// When calculating time with relative time, 
-		// time delay may occur, 
-		// so time should always be calculated with absolute time.
-		std::chrono::time_point elapsed_time = system_clock::now();
-		int64_t prev_timestamp = 0;
-		std::chrono::microseconds delta_time_duration(0);
-
-		for (MidiParser::Event* event: events)
-		{
-			int64_t delta = event->timestamp - prev_timestamp;
-			std::chrono::microseconds duration = delta * delta_time_duration;
-			elapsed_time += duration;
-			std::this_thread::sleep_until(elapsed_time);
-
-			if (event->get_type() == MidiParser::MetaEvent::SET_TEMPO)
-			{
-				delta_time_duration = midi.division.get_delta_time_duration(
-					dynamic_cast<MidiParser::SetTempo*>(event)->get_quarter_note_duration()
-				);
-			}
-			else if (event->get_category() == MidiParser::MidiEvent::MIDI)
-			{
-				uint32_t message = dynamic_cast<MidiParser::MidiEvent*>(event)->get_binary();
-				midi_out(message);
-			}
-			prev_timestamp = event->timestamp;
-		}
-	}
-	catch (std::exception& e)
+	while (playing)
 	{
-		std::cerr << e.what() << std::endl;
-	}
-}
+		playing = false;
 
+		for (int track_idx = 0; track_idx < midi.tracks.size(); ++track_idx)
+		{
+			const MidiParser::Track& track = midi.tracks[track_idx];
+			int& event_idx = indices[track_idx];
+			while (event_idx < track.events.size())
+			{
+				const MidiParser::Event* event = track.events[event_idx].get();
+				if (event->timestamp > timestamp) break;
+
+				if (event->get_category() == MidiParser::MidiEvent::MIDI)
+				{
+					midi_out(dynamic_cast<const MidiParser::MidiEvent*>(event)->get_binary());
+					std::cout << event->str() << std::endl;
+				}
+				else if (event->get_type() == MidiParser::MetaEvent::SET_TEMPO)
+				{
+					delta_time_duration = midi.division.get_delta_time_duration(
+						dynamic_cast<const MidiParser::SetTempo*>(event)->get_quarter_note_duration()
+					);
+					std::cout << event->str() << std::endl;
+				}
+				++event_idx;
+			}
+			if (event_idx < track.events.size()) playing = true;
+		}
+		++timestamp;
+
+		// Time MUST be calculated by absolute time.
+		// Relative time MAY cause time delay;
+		std::this_thread::sleep_until(time += delta_time_duration);
+	}
+
+}
 
 int main()
 {
@@ -72,10 +61,12 @@ int main()
 	std::vector<MidiParser::Midi> play_list = {
 		{root_path / "sample_sonic3_boss.mid"},
 		{root_path / "sample_tamashino_refrain.mid"},
+		{root_path / "these.mid"},
 	};
 
 	for (auto& midi: play_list)
 	{
 		midi_play(midi);
+		midi_reset();
 	}
 }

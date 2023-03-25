@@ -283,7 +283,7 @@ public:
 
 	Type			get_type() const override;
 	std::ostream&	str(std::ostream& os) const override;
-	microseconds	get_quarter_note_duration() const;
+	Microseconds	get_quarter_note_duration() const;
 	void			set(int quarter_note_duration); // micro second
 };
 

@@ -2,7 +2,11 @@
 #include <cstdint>
 #include <chrono>
 
+namespace MidiParser{
 
-typedef uint8_t byte;
-using std::chrono::system_clock;
-using std::chrono::microseconds;
+typedef uint8_t								byte;
+typedef std::chrono::high_resolution_clock	Clock;
+typedef std::chrono::microseconds			Microseconds;
+typedef Clock::time_point					Timepoint;
+
+}

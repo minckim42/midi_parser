@@ -38,8 +38,8 @@ public:
 	void			set_division(uint16_t division);
 	void			set_smpte(byte frame_rate, byte ticks);
 	std::string		to_string() const;
-	microseconds	get_delta_time_duration(microseconds quarter_note_duration) const;
-	microseconds	get_delta_time_duration() const;
+	Microseconds	get_delta_time_duration(Microseconds quarter_note_duration) const;
+	Microseconds	get_delta_time_duration() const;
 
 protected:
 	Type		type = QUARTER_NOTE;
