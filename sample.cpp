@@ -66,6 +66,7 @@ int main()
 
 	for (auto& midi: play_list)
 	{
+		midi.save_str();
 		midi_play(midi);
 		midi_reset();
 	}

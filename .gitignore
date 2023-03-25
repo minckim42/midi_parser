@@ -3,4 +3,4 @@
 build*
 out
 CMakePresets.json
-a.exe
+*.exe
