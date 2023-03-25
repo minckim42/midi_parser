@@ -186,11 +186,11 @@
 			midi_out(message);
 			```
 		- ```SysexEvent```는 대부분의 경우에 무시해도 된다.
-		- ```MetaEvent```는 대부분의 경우, ```SetTempo```를 제외하고 대부분 무시해도 된다.
+		- ```MetaEvent```는 ```SetTempo```를 제외하고 대부분 무시해도 된다.
 
 	- 시간
 		- 한 프레임마다 ```delta_time```을 하나씩 더하고, 프레임마다 ```sleep_until(time + delta_time_duration)``` 하면서 재생한다.
-		- event->delta_time으로 계산하는 것이 매우 귀찮기 때문에 event->timestamp를 이용하는 것을 권한다.
+		- event->delta_time으로 계산하는 것이 매우 귀찮기 때문에 event->timestamp를 이용하는 것을 권장한다.
 
 			```c++
 
