@@ -61,7 +61,7 @@ int main()
 	std::vector<MidiParser::Midi> play_list = {
 		{root_path / "sample_sonic3_boss.mid"},	
 		{root_path / "sample_tamashino_refrain.mid"},
-		{root_path / "sample_tamashino_these.mid"},
+		{root_path / "sample_these.mid"},
 	};
 
 	for (auto& midi: play_list)
